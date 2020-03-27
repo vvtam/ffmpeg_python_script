@@ -1,2 +1,2 @@
-# FFmpegWithPython3
-FFmpegWithPython3
+# ffmpeg_python_script
+some python script use ffmpeg to decode video and audio   

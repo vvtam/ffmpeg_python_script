@@ -65,7 +65,7 @@ logging.basicConfig(filename='info.log', level=logging.WARNING)
 
 def transcode(filepath, outputdir, dua, filesuffix):
     command = ["ffmpeg", "-y", "-i", filepath,
-               "-ss", "7",
+               "-ss", "00:00:00",# 去除头部时间+1
                "-loglevel",  "error",
                "-c:v", "copy",
                "-c:a", "copy",
@@ -115,7 +115,7 @@ def main():
                 os.makedirs(output_basedir)            
             logging.warning(filepath)  # 记录进度 对应时间
             dua = (duration(filepath))
-            dua = dua - 6 #去除尾部多少秒
+            dua = dua - 0 - 6 #去除头部，尾部多少秒
             dua = str(dua)
             transcode(filepath, outputdir, dua, filesuffix)
             line = f.readline()
