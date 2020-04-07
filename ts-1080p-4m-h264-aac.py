@@ -13,17 +13,15 @@ def transcode(filepath outputdir):
                -loglevel  error
                -metadata service_name='Push Media'
                -metadata service_provider='Push Media'
-               -c:v h264
+               -c:v h264 #视频编码
                -profile:v high -level:v 4.1
-               # -x264-params nal-hrd=cbr
-               # -b:v 8M -minrate 8M -maxrate 8M -bufsize 2M
-               -b:v 4M
+               -b:v 4M #视频码率4M
                -preset faster
-               -s 1920x1080
+               -s 1920x1080 #分辨率
                -aspect 16:9
                -r 25
-               -c:a aac
-               -b:a 128K -ar 48000
+               -c:a aac #音频编码
+               -b:a 128K -ar 48000 #音频码率128K
                outputdir + .ts
                ]
     pipe = sp.Popen(command stdout=sp.PIPE stderr=sp.STDOUT)
@@ -37,11 +35,7 @@ def transcode(filepath outputdir):
 
 
 def main():
-    # 查找视频文件
-    os.system('find ./ -size +1M > videolist')
-    #findfile = sp.Popen('find ./ -size +1M > list' shell=False)
-    #findfile.wait()
-
+  
     # 打开视频列表文件
     with open('videolist' 'r') as f:
         line = f.readline()
@@ -62,7 +56,7 @@ def main():
             #output_basedir = '/home/pm/transcode'
             #outputdir = os.path.join(output_basedir 'transcode' outputdir)
             # ===输出不在当前目录===
-            # 标准化路径名，合并多余的分隔符和上层引
+            # 标准化路径名，合并多余的分隔符和上层引用
             outputdir = os.path.normpath(outputdir)
             # 替换空格
             #outputdir = outputdir.replace(  _)

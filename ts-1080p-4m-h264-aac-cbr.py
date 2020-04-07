@@ -8,7 +8,8 @@ import time
 
 logging.basicConfig(filename='info.log', level=logging.WARNING)
 
-def findfile:
+# 生成视频文件列表，相对路径
+def findfile():
     videoformat=(".mp4", ".ts", ".flv")  #添加视频格式
     w = os.walk("./")
     for root, dirs, files in w:
@@ -17,19 +18,17 @@ def findfile:
                 with open('list', 'a') as f:
                     f.write(os.path.join(root, name))
                     f.write("\n")
-
+# 修改转码参数
 def transcode(filepath, outputdir):
     command = ["ffmpeg", "-y", "-i", filepath,
                "-loglevel",  "error",
                "-metadata", "service_name='Push Media'",
                "-metadata", "service_provider='Push Media'",
-               #"-metadata", "copyright='Copyright 2018 By PM'",
-               #"-metadata", "comment='An exercise in Realmedia metadata'",
                "-c:v", "h264",
                "-profile:v", "high", "-level:v", "4.0",
                "-x264-params", "nal-hrd=cbr",
-               "-b:v", "8M", "-minrate", "8M", "-maxrate", "8M", "-bufsize", "4M",
-               "-preset", "ultrafast", "-tune", "animation",
+               "-b:v", "4M", "-minrate", "4M", "-maxrate", "4M", "-bufsize", "2M",
+               "-preset", "ultrafast",
                "-bf", "2", #Bframe
                "-keyint_min", "25", "-g", "25", "-sc_threshold", "0",
                "-s", "1920x1080",
@@ -37,7 +36,7 @@ def transcode(filepath, outputdir):
                "-r", "25",
                "-c:a", "aac",
                "-b:a", "192K", "-ar", "48000",
-               "-f", "mpegts", "-muxrate", "9M",
+               "-f", "mpegts", "-muxrate", "5M",
                outputdir + ".ts"
                ]
     pipe = sp.Popen(command, stdout=sp.PIPE, stderr=sp.STDOUT)
@@ -52,7 +51,7 @@ def transcode(filepath, outputdir):
 
 def main():
     # 生成视频列表文件
-    findfile
+    findfile()
     time.sleep(10)
     with open('list', 'r') as f:
         line = f.readline()
