@@ -6,11 +6,11 @@ import os
 import logging
 import time
 
-logging.basicConfig(filename='info.log', level=logging.WARNING)
+logging.basicConfig(filename='4mtscbr.log', level=logging.WARNING)
 
 # 生成视频文件列表，相对路径
 def findfile():
-    videoformat=(".mp4", ".ts", ".flv")  #添加视频格式
+    videoformat=(".mp4", ".ts", ".flv", ".mov")  #添加视频格式
     w = os.walk("./")
     for root, dirs, files in w:
         for name in files:
@@ -82,7 +82,7 @@ def main():
             else:
                 logging.info(output_basedir + ", the dir create success.")
                 os.makedirs(output_basedir)
-            logging.warning(filepath)  # 记录进度
+            logging.warning(filepath)  # 记录
             transcode(filepath, outputdir)
             line = f.readline()
 
