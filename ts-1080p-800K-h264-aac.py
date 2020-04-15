@@ -17,20 +17,20 @@ def findfile():
                     f.write(os.path.join(root, name))
                     f.write("\n")
 
-
 def transcode(filepath, outputdir):
     command = ["ffmpeg", "-y", "-i", filepath,
                "-loglevel", "error",
                "-metadata", "service_name='Push Media'",
                "-metadata", "service_provider='Push Media'",
                "-c:v", "h264",
-               "-b:v", "4M",
+               "-b:v", "800K",
                "-preset", "ultrafast",
                "-s", "1920x1080",
+               "-aspect", "16:9",
                "-r", "25",
                "-c:a", "aac",
-               "-b:a", "128K", "-ar", "48000",
-               outputdir + ".mp4"
+               "-b:a", "64K", "-ar", "48000",
+               outputdir + ".ts"
                ]
     pipe = sp.Popen(command, stdout=sp.PIPE, stderr=sp.STDOUT)
     out, err = pipe.communicate()
@@ -44,35 +44,24 @@ def transcode(filepath, outputdir):
 
 def main():
     findfile()
-    # 打开视频列表文件
     with open('list', 'r') as f:
         line = f.readline()
-        # 逐行读取文件，并新建输出路径
         while line:
-            # 输出入文件路径
-            filepath = line.strip()  # 去除行尾的"\n"
-            # 去除文件扩展名，获得一个list
+            filepath = line.strip()
             filedir = os.path.splitext(filepath)
-            # 去除文件扩展名后的路径作为输出的路径
             outputdir = filedir[0]
-            # 文件扩展名
-            # filesuffix = filedir[1]
-            # raise SystemExit('Debug and Exit!') #调试
             # ===输出目录===
             output_basedir = '.'
-            outputdir = os.path.join(output_basedir, 'mp44m1080p', outputdir)
+            outputdir = os.path.join(output_basedir, '800K1080pts', outputdir)
             # ===输出目录===
-            # 标准化路径名，合并多余的分隔符和上层引
             outputdir = os.path.normpath(outputdir)
-            # 替换空格
-            # outputdir = outputdir.replace(" ", "_")
             output_basedir = os.path.dirname(outputdir)
             if os.path.exists(output_basedir):
                 logging.info(output_basedir + ", the dir already exist.")
             else:
                 logging.info(output_basedir + ", the dir create success.")
                 os.makedirs(output_basedir)
-            logging.warning(filepath)  # 记录进度
+            logging.warning(filepath)
             transcode(filepath, outputdir)
             line = f.readline()
 

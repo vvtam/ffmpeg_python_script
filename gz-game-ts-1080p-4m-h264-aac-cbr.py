@@ -6,23 +6,27 @@ import os
 import logging
 
 logging.basicConfig(filename='info.log', level=logging.WARNING)
-# logging.basicConfig(filename='tcTS.log', level=logging.INFO)
 
+def findfile():
+    videoformat=(".mp4", ".ts", ".flv", ".mov")  #添加视频格式
+    w = os.walk("./")
+    for root, dirs, files in w:
+        for name in files:
+            if name.endswith(videoformat):
+                with open('list', 'a') as f:
+                    f.write(os.path.join(root, name))
+                    f.write("\n")
 
 def transcode(filepath, outputdir):
     command = ["ffmpeg", "-y", "-i", filepath,
                "-loglevel",  "error",
                "-metadata", "service_name='Push Media'",
                "-metadata", "service_provider='Push Media'",
-               #"-metadata", "copyright='Copyright 2018 By PM'",
-               #"-metadata", "comment='An exercise in Realmedia metadata'",
                "-c:v", "h264",
                #"-profile:v", "high", "-level:v", "4.0",
                "-x264-params", "nal-hrd=cbr",
                "-b:v", "4M", "-minrate", "4M", "-maxrate", "4M", "-bufsize", "3M",
                "-preset", "ultrafast",
-               #"-bf", "2", #Bframe
-               #"-keyint_min", "25", "-g", "25", "-sc_threshold", "0",
                "-s", "1920x1080",
                "-aspect", "16:9",
                "-r", "25",
@@ -42,6 +46,7 @@ def transcode(filepath, outputdir):
 
 
 def main():
+    findfile()
     # 打开视频列表文件
     with open('list', 'r') as f:
         line = f.readline()
@@ -56,12 +61,10 @@ def main():
             # 文件扩展名
             # filesuffix = filedir[1]
             # raise SystemExit('Debug and Exit!') #调试
-            # 输出在当前目录
-            outputdir = os.path.join(os.path.abspath('.'), 'gz4m1080pts', outputdir)
-            # ===输出不在当前目录===
-            #output_basedir = '/mnt/nfs/transcode'
-            #outputdir = os.path.join(output_basedir, 'ts8M1080P', outputdir)
-            # ===输出不在当前目录===
+            # ===输出目录===
+            output_basedir = '.'
+            outputdir = os.path.join(output_basedir, 'gz4m1080ptscbr', outputdir)
+            # ===输出目录===
             # 标准化路径名，合并多余的分隔符和上层引
             outputdir = os.path.normpath(outputdir)
             # 替换空格

@@ -1,43 +1,50 @@
 #!/usr/bin/env python3
 # _*_ coding:utf-8 _*_
 
-import subprocess as sp 
+import subprocess as sp
 import os
 import logging
 
-logging.basicConfig(filename='info.log' level=logging.WARNING)
-# logging.basicConfig(filename='tcTS.log' level=logging.INFO)
+logging.basicConfig(filename='info.log', level=logging.WARNING)
 
-def transcode(filepath outputdir):
-    command = [ffmpeg -y -i filepath
-               -loglevel  error
-               -metadata service_name='Push Media'
-               -metadata service_provider='Push Media'
-               -c:v h264 #视频编码
-               -profile:v high -level:v 4.1
-               -b:v 4M #视频码率4M
-               -preset faster
-               -s 1920x1080 #分辨率
-               -aspect 16:9
-               -r 25
-               -c:a aac #音频编码
-               -b:a 128K -ar 48000 #音频码率128K
-               outputdir + .ts
+def findfile():
+    videoformat=(".mp4", ".ts", ".flv", ".mov")  #添加视频格式
+    w = os.walk("./")
+    for root, dirs, files in w:
+        for name in files:
+            if name.endswith(videoformat):
+                with open('list', 'a') as f:
+                    f.write(os.path.join(root, name))
+                    f.write("\n")
+
+def transcode(filepath, outputdir):
+    command = ["ffmpeg", "-y", "-i", filepath,
+               "-loglevel", "error",
+               "-metadata", "service_name='Push Media'",
+               "-metadata", "service_provider='Push Media'",
+               "-c:v", "h264", #视频编码
+               "-b:v", "4M",   #视频码率
+               "-preset", "ultrafast",
+               "-s", "1920x1080",
+               "-aspect", "16:9",
+               "-r", "25",
+               "-c:a", "aac", #音频编码
+               "-b:a", "128K", "-ar", "48000",
+               outputdir + ".ts"
                ]
-    pipe = sp.Popen(command stdout=sp.PIPE stderr=sp.STDOUT)
-    out err = pipe.communicate()
+    pipe = sp.Popen(command, stdout=sp.PIPE, stderr=sp.STDOUT)
+    out, err = pipe.communicate()
     if pipe.returncode == 0:
-        logging.info(command '%s' succeeded returned: %s
-                     % (command str(out)))
+        logging.info("command '%s' succeeded, returned: %s"
+                     % (command, str(out)))
     else:
-        logging.error(command '%s' failed exit-code=%d error = %s
-                      % (command pipe.returncode str(err)))
+        logging.error("command '%s' failed, exit-code=%d error = %s"
+                      % (command, pipe.returncode, str(err)))
 
 
 def main():
-  
-    # 打开视频列表文件
-    with open('videolist' 'r') as f:
+    findfile()
+    with open('list', 'r') as f:
         line = f.readline()
         # 逐行读取文件，并新建输出路径
         while line:
@@ -50,25 +57,24 @@ def main():
             # 文件扩展名
             # filesuffix = filedir[1]
             # raise SystemExit('Debug and Exit!') #调试
-            # 输出在当前目录
-            outputdir = os.path.join(os.path.abspath('.') '4m1080pts' outputdir)
-            # ===输出不在当前目录===
-            #output_basedir = '/home/pm/transcode'
-            #outputdir = os.path.join(output_basedir 'transcode' outputdir)
-            # ===输出不在当前目录===
-            # 标准化路径名，合并多余的分隔符和上层引用
+            # ===输出目录===
+            output_basedir = '.'
+            outputdir = os.path.join(output_basedir, '4m1080ptsvbr', outputdir)
+            # ===输出目录===
+            # 标准化路径名，合并多余的分隔符和上层引
             outputdir = os.path.normpath(outputdir)
             # 替换空格
-            #outputdir = outputdir.replace(  _)
+            # outputdir = outputdir.replace(" ", "_")
             output_basedir = os.path.dirname(outputdir)
             if os.path.exists(output_basedir):
-                logging.info(output_basedir +  the dir already exist.)
+                logging.info(output_basedir + ", the dir already exist.")
             else:
-                logging.info(output_basedir +  the dir create success.)
+                logging.info(output_basedir + ", the dir create success.")
                 os.makedirs(output_basedir)
             logging.warning(filepath)  # 记录进度
-            transcode(filepath outputdir)
+            transcode(filepath, outputdir)
             line = f.readline()
+
 
 if __name__ == '__main__':
     main()
