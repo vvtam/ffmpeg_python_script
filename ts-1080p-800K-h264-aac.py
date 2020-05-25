@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # _*_ coding:utf-8 _*_
 
-import subprocess as sp
-import os
 import logging
+import os
+import subprocess as sp
 
 logging.basicConfig(filename='info.log', level=logging.WARNING)
 
@@ -17,12 +17,17 @@ def findfile():
                     f.write(os.path.join(root, name))
                     f.write("\n")
 
+# logging.basicConfig(filename='tcTS.log', level=logging.INFO)
+
 def transcode(filepath, outputdir):
     command = ["ffmpeg", "-y", "-i", filepath,
                "-loglevel", "error",
                "-metadata", "service_name='Push Media'",
                "-metadata", "service_provider='Push Media'",
                "-c:v", "h264",
+               # "-profile:v", "high", "-level:v", "4.1",
+               # "-x264-params", "nal-hrd=cbr",
+               # "-b:v", "8M", "-minrate", "8M", "-maxrate", "8M", "-bufsize", "2M",
                "-b:v", "800K",
                "-preset", "ultrafast",
                "-s", "1920x1080",
@@ -46,22 +51,32 @@ def main():
     findfile()
     with open('list', 'r') as f:
         line = f.readline()
+        # 逐行读取文件，并新建输出路径
         while line:
-            filepath = line.strip()
+            # 输出入文件路径
+            filepath = line.strip()  # 去除行尾的\n
+            # 去除文件扩展名，获得一个list
             filedir = os.path.splitext(filepath)
+            # 去除文件扩展名后的路径作为输出的路径
             outputdir = filedir[0]
+            # 文件扩展名
+            # filesuffix = filedir[1]
+            # raise SystemExit('Debug and Exit!') #调试
             # ===输出目录===
             output_basedir = '.'
-            outputdir = os.path.join(output_basedir, '800K1080pts', outputdir)
+            outputdir = os.path.join(output_basedir, '800k1080ptsvbr', outputdir)
             # ===输出目录===
+            # 标准化路径名，合并多余的分隔符和上层引
             outputdir = os.path.normpath(outputdir)
+            # 替换空格
+            # outputdir = outputdir.replace(" ", "_")
             output_basedir = os.path.dirname(outputdir)
             if os.path.exists(output_basedir):
                 logging.info(output_basedir + ", the dir already exist.")
             else:
                 logging.info(output_basedir + ", the dir create success.")
                 os.makedirs(output_basedir)
-            logging.warning(filepath)
+            logging.warning(filepath)  # 记录进度
             transcode(filepath, outputdir)
             line = f.readline()
 
